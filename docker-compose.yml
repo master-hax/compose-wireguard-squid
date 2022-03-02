@@ -1,43 +1,36 @@
 version: "3.7"
 services:
 
-  ipfs-node:
-    image: lscr.io/linuxserver/ipfs
+  squid:
+    image: ubuntu/squid
     restart: unless-stopped
     network_mode: service:vpn-sidecar
     depends_on:
       - vpn-sidecar
-    volumes:
-      - ipfs-node-data-volume:/config
-      - downloads-volume:/downloads
 
   web-proxy:
     image: dperson/nginx
     restart: unless-stopped
-    networks:
-      - default
-      - isolated_ipfs_network
     environment:
-      - PROXY=http://ipfs-node:5001;/ # for API & web UI
-      - STREAM=8080;ipfs-node:8080    # for IPFS gateway
+      - STREAM=69;squid:3128
     ports:
-      - 5001:80/tcp
-      - 8080:8080/tcp
+      - 3128:69/tcp
     links:
-      - vpn-sidecar:ipfs-node
+      - vpn-sidecar:squid
     depends_on:
-      - ipfs-node
+      - squid
     read_only: true
     tmpfs:
       - /run
       - /tmp
       - /var/cache/nginx
+    networks:
+      - default
+      - isolated_vpn_network
 
   vpn-sidecar:
     image: lscr.io/linuxserver/wireguard
     restart: unless-stopped
-    networks:
-      - isolated_ipfs_network
     cap_add:
       - NET_ADMIN
       - SYS_MODULE
@@ -47,16 +40,10 @@ services:
     sysctls:
       - net.ipv4.conf.all.src_valid_mark=1
       - net.ipv6.conf.all.disable_ipv6=0 # for raspberry pi compatibility?
+    networks:
+      - isolated_vpn_network
 
 volumes:
-  ipfs-node-data-volume: # go-ipfs application files - change to a persistent location
-    driver_opts:
-        type: tmpfs
-        device: tmpfs
-  downloads-volume: # (optional) file download location - change to a persistent location
-    driver_opts:
-        type: tmpfs
-        device: tmpfs
   wgclient-data-volume: # writeable location of wg0.conf
     driver: local
     driver_opts:
@@ -66,4 +53,4 @@ volumes:
 
 networks:
   default:
-  isolated_ipfs_network:
+  isolated_vpn_network:
