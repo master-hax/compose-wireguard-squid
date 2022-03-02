@@ -12,14 +12,10 @@ if everything works correctly, go-ipfs should be running behind your VPN!
 
 ## how to use it
 
-the IPFS web UI should be accessible at http://localhost:5001/webui
-
-if you want to use this persistently, you should probably
-1. change the locations of the `ipfs-node-data-volume` & `downloads-volume`
-1. forward port 4001 with your VPN provider (or pick a different port), then add port forwarding to your `wg0.conf` using the rules proposed [here](https://github.com/linuxserver/docker-wireguard/issues/58#issuecomment-723702782)
+set your browser (or any other application) to use localhost:3128 as web proxy
 
 ## how it works
 
-the `ipfs-node` service shares the network stack of the `vpn-sidecar` service (Wireguard), which is tunneled through your VPN provider. to maintain local connectivity to the `ipfs-node` container's web UI & IPFS gateway, we proxy to it to through the `web-proxy` service (Nginx) using [Docker container links](https://docs.docker.com/network/links/).
+the `squid` service shares the network stack of the `vpn-sidecar` service (Wireguard), which is tunneled through your VPN provider. to maintain local connectivity to the `squid` container, we proxy to it to through the `web-proxy` service (Nginx) using [Docker container links](https://docs.docker.com/network/links/).
 
-## note: an [OpenVPN](https://github.com/master-hax/compose-openvpn-ipfs) version is also available
+## note: an [OpenVPN](https://github.com/master-hax/compose-openvpn-squid) version is also available
