@@ -8,7 +8,7 @@ a multi-container Docker application to run a [squid](https://hub.docker.com/r/u
 1. put your `wg0.conf` file into `./wireguard`
 1. run `docker-compose up`
 
-if everything works correctly, go-ipfs should be running behind your VPN!
+if everything works correctly, squid should be running behind your VPN!
 
 ## how to use it
 
